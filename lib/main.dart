@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:timer/egg_timer.dart';
 import 'package:timer/egg_timer_button.dart';
 import 'package:timer/egg_timer_controls.dart';
+import 'package:timer/egg_timer_dial.dart';
 import 'package:timer/egg_timer_interface.dart';
 
 final Color GRADIENT_TOP = const Color(0xFFF5F5F5);
@@ -31,10 +33,19 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+
+
+
   AnimationController _controller;
   Animation _animation;
+
+  final EggTimer eggTimer;
+
+  _MyHomePageState()
+      : eggTimer = new EggTimer(maxTime: const Duration(minutes: 35));
+
+
 
   @override
   void initState() {
@@ -47,6 +58,14 @@ class _MyHomePageState extends State<MyHomePage>
       });
 
     super.initState();
+  }
+
+
+  onTimeSelected(Duration newTime){
+    setState(() {
+           eggTimer.currentTime = newTime;
+        });
+   
   }
 
   @override
@@ -62,49 +81,10 @@ class _MyHomePageState extends State<MyHomePage>
           child: Column(
             children: <Widget>[
               EggTimerDisplay(),
-              Container(
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: AspectRatio(
-                      aspectRatio: 1.0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                  offset: Offset(0.0, 1.0),
-                                  color: Color(0x44000000),
-                                  blurRadius: 2,
-                                  spreadRadius: 1)
-                            ],
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [GRADIENT_TOP, GRADIENT_BOTTOM])),
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.all(65.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                      offset: Offset(0.0, 1.0),
-                                      color: Color(0x44000000),
-                                      blurRadius: 2,
-                                      spreadRadius: 1)
-                                ],
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [GRADIENT_TOP, GRADIENT_BOTTOM])),
-                            width: double.infinity,
-                            child: Container(),
-                          ),
-                        ),
-                      )),
-                ),
+              EggTimerDial(
+                currentTime: eggTimer.currentTime,
+                maxTime: eggTimer.maxTime,
+                onTimeSelected:onTimeSelected
               ),
               Expanded(
                 child: Container(),
