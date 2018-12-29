@@ -31,7 +31,10 @@ class _EggTimerDialState extends State<EggTimerDial> {
   @override
   Widget build(BuildContext context) {
     return DialTurnGestureDetector(
-          child: Container(
+      maxTime: widget.maxTime,
+      currentTime: widget.currentTime,
+      onTimeSelected: widget.onTimeSelected,
+      child: Container(
         width: double.infinity,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -79,35 +82,51 @@ class _EggTimerDialState extends State<EggTimerDial> {
 }
 
 class DialTurnGestureDetector extends StatefulWidget {
+  final currentTime;
+  final maxTime;
   final child;
+  final Function(Duration) onTimeSelected;
 
-  DialTurnGestureDetector({this.child});
+  DialTurnGestureDetector(
+      {this.child, this.currentTime, this.maxTime, this.onTimeSelected});
   @override
-  _DialTurnGestureDetectorState createState() => _DialTurnGestureDetectorState();
+  _DialTurnGestureDetectorState createState() =>
+      _DialTurnGestureDetectorState();
 }
 
 class _DialTurnGestureDetectorState extends State<DialTurnGestureDetector> {
+  PolarCoord startDragCoord;
+  Duration startDragTime;
 
-  onDragStart(PolarCoord coord){
-
+  onDragStart(PolarCoord coord) {
+    startDragCoord = coord;
+    startDragTime =widget.currentTime;
   }
 
-  onDragUpdate(PolarCoord coords){
+  onDragUpdate(PolarCoord coords) {
+    print("DRAGGING");
+    if (startDragCoord != null) {
+      final angleDiff = coords.angle - startDragCoord.angle;
+      final anglePercent = angleDiff / (2 * pi);
+      final timeDiff = (anglePercent * widget.maxTime.inSeconds).round();
+      final newTime =
+          Duration(seconds: startDragTime.inSeconds + timeDiff);
 
+      widget.onTimeSelected(newTime);
+    }
   }
 
-  onDragEnd(){
-
+  onDragEnd() {
+    startDragCoord = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return RadialDragGestureDetector (
-      onRadialDragStart: onDragStart ,
+    return RadialDragGestureDetector(
+      onRadialDragStart: onDragStart,
       onRadialDragUpdate: onDragUpdate,
       onRadialDragEnd: onDragEnd,
       child: widget.child,
-      
     );
   }
 }
