@@ -1,12 +1,17 @@
+import 'dart:async';
+
 class EggTimer{
 
+  final Stopwatch stopwatch = Stopwatch();
   final Duration maxTime;
   Duration _currentTime = const Duration(seconds: 0);
   EggTimerState state = EggTimerState.ready;
+  Duration lastStartTime = const Duration(seconds: 0);
+  Function onTimerUpdate;
 
 
   EggTimer({
-    this.maxTime
+    this.maxTime,this.onTimerUpdate
   });
 
   get currentTime{
@@ -19,6 +24,39 @@ class EggTimer{
     }
 
   }
+
+  resume(){
+    state = EggTimerState.running;
+    lastStartTime = currentTime;
+    stopwatch.start();
+    tick();
+  }
+
+  tick(){
+    print("Current Time:${_currentTime.inSeconds}");
+
+    _currentTime = (lastStartTime - stopwatch.elapsed);
+
+    
+    
+
+    if(currentTime.inSeconds>0){
+      Timer(Duration(seconds: 1),tick);
+
+    }else{
+      state =EggTimerState.ready;
+    }
+
+    if(onTimerUpdate!=null){
+      onTimerUpdate();
+    }
+
+  }
+  pause(){
+
+  }
+  
+  
 
 }
 

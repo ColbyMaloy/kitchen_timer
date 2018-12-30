@@ -12,13 +12,14 @@ class EggTimerDial extends StatefulWidget {
   final Duration maxTime;
   final int ticksPerSection;
   final Function(Duration) onTimeSelected;
+  final Function(Duration) onDialStopTurning;
 
-  EggTimerDial({
-    this.currentTime = const Duration(minutes: 0),
-    this.ticksPerSection = 5,
-    this.maxTime = const Duration(minutes: 35),
-    this.onTimeSelected,
-  });
+  EggTimerDial(
+      {this.currentTime = const Duration(minutes: 0),
+      this.ticksPerSection = 5,
+      this.maxTime = const Duration(minutes: 35),
+      this.onTimeSelected,
+      this.onDialStopTurning});
   @override
   _EggTimerDialState createState() => _EggTimerDialState();
 }
@@ -34,6 +35,7 @@ class _EggTimerDialState extends State<EggTimerDial> {
       maxTime: widget.maxTime,
       currentTime: widget.currentTime,
       onTimeSelected: widget.onTimeSelected,
+      onDialStopTurning: widget.onDialStopTurning,
       child: Container(
         width: double.infinity,
         child: Padding(
@@ -86,9 +88,14 @@ class DialTurnGestureDetector extends StatefulWidget {
   final maxTime;
   final child;
   final Function(Duration) onTimeSelected;
+  final Function(Duration) onDialStopTurning;
 
   DialTurnGestureDetector(
-      {this.child, this.currentTime, this.maxTime, this.onTimeSelected});
+      {this.child,
+      this.currentTime,
+      this.maxTime,
+      this.onTimeSelected,
+      this.onDialStopTurning});
   @override
   _DialTurnGestureDetectorState createState() =>
       _DialTurnGestureDetectorState();
@@ -97,27 +104,30 @@ class DialTurnGestureDetector extends StatefulWidget {
 class _DialTurnGestureDetectorState extends State<DialTurnGestureDetector> {
   PolarCoord startDragCoord;
   Duration startDragTime;
+  Duration selectedTime;
 
   onDragStart(PolarCoord coord) {
     startDragCoord = coord;
-    startDragTime =widget.currentTime;
+    startDragTime = widget.currentTime;
   }
 
   onDragUpdate(PolarCoord coords) {
-    print("DRAGGING");
     if (startDragCoord != null) {
       final angleDiff = coords.angle - startDragCoord.angle;
       final anglePercent = angleDiff / (2 * pi);
       final timeDiff = (anglePercent * widget.maxTime.inSeconds).round();
-      final newTime =
-          Duration(seconds: startDragTime.inSeconds + timeDiff);
+      selectedTime = Duration(seconds: startDragTime.inSeconds + timeDiff);
 
-      widget.onTimeSelected(newTime);
+      widget.onTimeSelected(selectedTime);
     }
   }
 
   onDragEnd() {
+    widget.onDialStopTurning(selectedTime);
     startDragCoord = null;
+    
+    selectedTime = null;
+    startDragTime = null;
   }
 
   @override

@@ -33,19 +33,24 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-
-
-
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation _animation;
 
-  final EggTimer eggTimer;
+  EggTimer eggTimer;
 
-  _MyHomePageState()
-      : eggTimer = new EggTimer(maxTime: const Duration(minutes: 35));
+  _MyHomePageState() {
+    eggTimer = new EggTimer(
+        maxTime: const Duration(minutes: 35), onTimerUpdate: onTimerUpdate);
+  }
 
-
+  onDialStopTurning(Duration newTime) {
+    setState(() {
+      eggTimer.currentTime = newTime;
+      eggTimer.resume();
+    });
+  }
 
   @override
   void initState() {
@@ -60,12 +65,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     super.initState();
   }
 
+  onTimerUpdate() {
+    setState(() {});
+  }
 
-  onTimeSelected(Duration newTime){
+  onTimeSelected(Duration newTime) {
     setState(() {
-           eggTimer.currentTime = newTime;
-        });
-   
+      eggTimer.currentTime = newTime;
+    });
   }
 
   @override
@@ -84,7 +91,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               EggTimerDial(
                 currentTime: eggTimer.currentTime,
                 maxTime: eggTimer.maxTime,
-                onTimeSelected:onTimeSelected
+                onTimeSelected: onTimeSelected,
+                onDialStopTurning: onDialStopTurning,
               ),
               Expanded(
                 child: Container(),
