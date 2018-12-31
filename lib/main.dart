@@ -87,7 +87,14 @@ class _MyHomePageState extends State<MyHomePage>
         child: Center(
           child: Column(
             children: <Widget>[
-              EggTimerDisplay(),
+              EggTimerDisplay(
+                eggTimerState: eggTimer.state,
+                selectionTime: eggTimer.lastStartTime,
+                countdownTime: eggTimer.currentTime,
+
+
+              ),
+
               EggTimerDial(
                 currentTime: eggTimer.currentTime,
                 maxTime: eggTimer.maxTime,
