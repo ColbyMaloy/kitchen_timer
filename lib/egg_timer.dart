@@ -1,7 +1,6 @@
 import 'dart:async';
 
-class EggTimer{
-
+class EggTimer {
   final Stopwatch stopwatch = Stopwatch();
   final Duration maxTime;
   Duration _currentTime = const Duration(seconds: 0);
@@ -9,59 +8,87 @@ class EggTimer{
   Duration lastStartTime = const Duration(seconds: 0);
   Function onTimerUpdate;
 
+  EggTimer({this.maxTime, this.onTimerUpdate});
 
-  EggTimer({
-    this.maxTime,this.onTimerUpdate
-  });
-
-  get currentTime{
+  get currentTime {
     return _currentTime;
   }
 
-  set currentTime(newTime){
-    if(state == EggTimerState.ready){
+  set currentTime(newTime) {
+    if (state == EggTimerState.ready) {
       _currentTime = newTime;
       lastStartTime = currentTime;
     }
-
   }
 
-  resume(){
-    state = EggTimerState.running;
-    
-    stopwatch.start();
-    tick();
+  resume() {
+    if (state != EggTimerState.running) {
+      if (state == EggTimerState.ready) {
+        currentTime = roundToMinute(currentTime);
+        lastStartTime = currentTime;
+      }
+      state = EggTimerState.running;
+
+      stopwatch.start();
+      tick();
+    }
   }
 
-  tick(){
+  roundToMinute(Duration duration) {
+    return Duration(minutes: (duration.inSeconds / 60).round());
+  }
+
+  restart() {
+    if (state == EggTimerState.paused) {
+      state = EggTimerState.running;
+      currentTime = lastStartTime;
+      stopwatch.reset();
+      stopwatch.start();
+      tick();
+    }
+  }
+
+  reset() {
+    if (state == EggTimerState.paused) {
+      state = EggTimerState.ready;
+      currentTime = const Duration(seconds: 0);
+      lastStartTime = currentTime;
+      stopwatch.reset();
+      if (null != onTimerUpdate) {
+        onTimerUpdate();
+      }
+    }
+  }
+
+  tick() {
     print("Current Time:${_currentTime.inSeconds}");
 
     _currentTime = (lastStartTime - stopwatch.elapsed);
 
-    
-    
-
-    if(currentTime.inSeconds>0){
-      Timer(Duration(seconds: 1),tick);
-
-    }else{
-      state =EggTimerState.ready;
+    if (currentTime.inSeconds > 0) {
+      Timer(Duration(seconds: 1), tick);
+    } else {
+      state = EggTimerState.ready;
     }
 
-    if(onTimerUpdate!=null){
+    if (onTimerUpdate != null) {
       onTimerUpdate();
     }
-
   }
-  pause(){
 
+  pause() {
+    if (state == EggTimerState.running) {
+      state = EggTimerState.paused;
+      stopwatch.stop();
+
+      if (null != onTimerUpdate) {
+        onTimerUpdate();
+      }
+    }
   }
-  
-  
-
 }
 
-enum EggTimerState{
+enum EggTimerState {
   ready,
   running,
   paused,

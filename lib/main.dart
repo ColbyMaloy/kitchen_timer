@@ -91,10 +91,7 @@ class _MyHomePageState extends State<MyHomePage>
                 eggTimerState: eggTimer.state,
                 selectionTime: eggTimer.lastStartTime,
                 countdownTime: eggTimer.currentTime,
-
-
               ),
-
               EggTimerDial(
                 currentTime: eggTimer.currentTime,
                 maxTime: eggTimer.maxTime,
@@ -104,7 +101,29 @@ class _MyHomePageState extends State<MyHomePage>
               Expanded(
                 child: Container(),
               ),
-              EggTimerControls()
+              EggTimerControls(
+                eggTimerState: eggTimer.state,
+                onPause: () {
+                  setState(() {
+                    eggTimer.pause();
+                  });
+                },
+                onResume: () {
+                  setState(() {
+                    eggTimer.resume();
+                  });
+                },
+                onRestart: () {
+                  setState(() {
+                    eggTimer.restart();
+                  });
+                },
+                onReset: () {
+                  setState(() {
+                    eggTimer.reset();
+                  });
+                },
+              )
             ],
           ),
         ),
